@@ -1,3 +1,5 @@
+import pandas as pd
+
 def balance_transactions():
 	header = ['bookingDate','remittanceInfo','amount.value','transactionType.key']
 	newheader = ['Date','WKN','Netto','Type']
