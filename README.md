@@ -10,7 +10,7 @@ Use at own risk. I'm not responsible if you lock your account or lose all your m
 
 # Prerequisites
 
-This module needs the following packages:  
+This module needs the following packages. This will be checked before the start:  
 pandas  
 json  
 datetime  
