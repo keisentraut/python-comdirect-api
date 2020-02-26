@@ -1,4 +1,5 @@
-from currenttime import currenttime
+def currenttime():
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
 def start():
 	#Personal Information
