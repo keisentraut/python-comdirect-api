@@ -1,3 +1,5 @@
+from create_dataframe import get_df
+
 def depot_transactions():
 	header = ['businessDate','quantity.value','instrument.wkn','instrument.shortName','instrument.staticData.instrumentType','executionPrice.value','transactionValue.value']
 	newheader = ['Date','Quantity','WKN','Name','Type','UnitPrice','TotalPrice']
