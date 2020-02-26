@@ -12,6 +12,7 @@ def start():
 	currentdir=currentdir.replace("\\","/")
 	if not os.path.exists('Output'):
     		os.makedirs('Output')
+	currentdir = currentdir+'/Output'
 	#Personal Information
 	client_id=input("Please enter client_id: ")
 	client_secret=input("Please enter client_secret: ")
