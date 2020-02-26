@@ -20,8 +20,8 @@ def start():
 	password = input("Please enter password: ")
 	
 	#Comdirect has NOT implemented this!
-	min_transactiondate = input(raw_input("Please enter START of transaction date (otherwise press enter): ") or currenttime()[:4]"-01-01")
-	max_transactiondate = input(raw_input("Please enter END of transaction date (otherwise press enter): ") or currenttime())
+	min_transactiondate = input("Please enter START of transaction date (otherwise press enter): ") or currenttime()[:4]"-01-01"
+	max_transactiondate = input("Please enter END of transaction date (otherwise press enter): ") or currenttime()
 	
 	#Get requests calls and several files are saved for further investigation
 	main_requests(client_id, client_secret, username, password, min_transactiondate, max_transactiondate, currentdir)
