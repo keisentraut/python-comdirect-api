@@ -4,6 +4,11 @@ This is a Python implementation of the new [comdirect REST API](https://www.comd
 
 Currently, this is only a proof of concept, but I plan to make it more useable and maybe turn it into a Python module.
 
+# Contributing
+
+Contributions are welcome.
+Verify tests pass by running `tox`. Additionally, run `black .` in order to fix your formatting.
+
 # Disclaimer
 
 Use at own risk. I'm not responsible if you lock your account or lose all your money. 
@@ -11,7 +16,6 @@ Use at own risk. I'm not responsible if you lock your account or lose all your m
 # Prerequisites
 
 This module needs the following packages. This will be checked before the start:  
-pandas  
 json  
 datetime  
 requests  
