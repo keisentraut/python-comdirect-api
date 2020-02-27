@@ -12,7 +12,7 @@ def start():
 	currentdir=currentdir.replace("\\","/")
 	if not os.path.exists('Output'):
     		os.makedirs('Output')
-	currentdir = currentdir+'/Output'
+	outputdir = currentdir+'/Output'
 	#Personal Information
 	client_id=input("Please enter client_id: ")
 	client_secret=input("Please enter client_secret: ")
@@ -24,17 +24,17 @@ def start():
 	max_transactiondate = input("Please enter END of transaction date (otherwise press enter): ") or currenttime()
 	
 	#Get requests calls and several files are saved for further investigation
-	main_requests(client_id, client_secret, username, password, min_transactiondate, max_transactiondate, currentdir)
+	main_requests(client_id, client_secret, username, password, min_transactiondate, max_transactiondate, outputdir)
 
 	#Get data in dataframe for analysis
-	df1 = depot_positions()
-	df2 = depot_transactions()
-	df3 = balance_transactions()
+	df1 = depot_positions(outputdir)
+	df2 = depot_transactions(outputdir)
+	df3 = balance_transactions(outputdir)
 	
 	#Export dataframes to excel
-	df1.to_excel(currentdir+'/'+"depot_positions"+currenttime+".xlsx")
-	df2.to_excel(currentdir+'/'+"depot_transactions"+currenttime+".xlsx")
-	df3.to_excel(currentdir+'/'+"balance_transactions"+currenttime+".xlsx")
+	df1.to_excel(outputdir+'/'+"depot_positions"+currenttime+".xlsx")
+	df2.to_excel(outputdir+'/'+"depot_transactions"+currenttime+".xlsx")
+	df3.to_excel(outputdir+'/'+"balance_transactions"+currenttime+".xlsx")
 
 
 if __name__ == "__main__":
