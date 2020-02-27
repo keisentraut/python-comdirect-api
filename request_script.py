@@ -113,7 +113,7 @@ def revoke_token(access_token, session_id):
 	)
 	print("token revoked")
 
-def get_requests(url,access_token,session_id,client_id,client_secret,filename,*args):
+def get_requests(url,access_token,session_id,client_id,client_secret,filename):
 	response = requests.get(
 		url,
 		allow_redirects = False,
@@ -133,7 +133,7 @@ def get_requests(url,access_token,session_id,client_id,client_secret,filename,*a
 		return None
 	
 def main_requests(client_id, client_secret, username, password, min_transactiondate, max_transactiondate, currentdir):
-	authorization(client_id, client_secret, username, password)
+	accountId, access_token, session_id = authorization(client_id, client_secret, username, password)
 	url = "https://api.comdirect.de/api/banking/v1/accounts/%s/transactions?min-bookingdate[gte]=2019-12-01&max-bookingdate[lte]=2019-12-31" % accountId
 	filename = currentdir+"/balance_transactions.json"
 	response = get_requests(url, access_token, session_id, client_id, client_secret, filename)
