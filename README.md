@@ -7,3 +7,15 @@ Currently, this is only a proof of concept, but I plan to make it more useable a
 # Disclaimer
 
 Use at own risk. I'm not responsible if you lock your account or lose all your money. 
+
+# Prerequisites
+
+This module needs the following packages. This will be checked before the start:  
+pandas  
+json  
+datetime  
+requests  
+uuid  
+base64  
+io  
+PIL  

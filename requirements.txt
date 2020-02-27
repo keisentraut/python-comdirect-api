@@ -1,0 +1,8 @@
+pandas
+json
+datetime
+requests
+uuid
+base64
+io
+PIL
