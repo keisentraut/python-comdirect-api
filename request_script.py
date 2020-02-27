@@ -135,13 +135,13 @@ def get_requests(url,access_token,session_id,client_id,client_secret,filename):
 	
 def main_requests(client_id, client_secret, username, password, min_transactiondate, max_transactiondate, currentdir):
 	accountId, access_token, session_id = authorization(client_id, client_secret, username, password)
-	url = "https://api.comdirect.de/api/banking/v1/accounts/%s/transactions?min-bookingdate[gte]=2019-12-01&max-bookingdate[lte]=2019-12-31" % accountId
+	url = "https://api.comdirect.de/api/banking/v1/accounts/%s/transactions?min-bookingdate[gte]=%s&max-bookingdate[lte]=%s" % (accountId, min_transactiondate, max_transactiondate)
 	filename = currentdir+"/balance_transactions.json"
 	response = get_requests(url, access_token, session_id, client_id, client_secret, filename)
 	url = "https://api.comdirect.de/api/brokerage/clients/user/v3/depots"
 	filename = currentdir+"/depot_information.json"
 	depot_id = get_requests(url, access_token, session_id, client_id, client_secret, filename)
-	url = "https://api.comdirect.de/api/brokerage/v3/depots/%s/transactions" % depot_id
+	url = "https://api.comdirect.de/api/brokerage/v3/depots/%s/transactions?min-bookingdate[gte]=%s&max-bookingdate[lte]=%s" % (depot_id, min_transactiondate, max_transactiondate)
 	filename = currentdir+"/depot_transactions.json"
 	response = get_requests(url, access_token, session_id, client_id, client_secret, filename)
 	url = "https://api.comdirect.de/api/brokerage/v3/depots/%s/positions" % depot_id
