@@ -126,8 +126,9 @@ def get_requests(url,access_token,session_id,client_id,client_secret,filename):
 		 data = "client_id=%s&client_secret=%s&grant_type=cd_secondary&token=%s" % (client_id, client_secret, access_token)
 	)
 	with open(filename,'w') as outfile:
-		json.dump(response,outfile)
+		outfile.write(response.text)
 	if url == "https://api.comdirect.de/api/brokerage/clients/user/v3/depots":
+		tmp = response.json()
 		return tmp["values"][0]["depotId"]
 	else:
 		return None
