@@ -27,15 +27,9 @@ def start():
 	main_requests(client_id, client_secret, username, password, min_transactiondate, max_transactiondate, outputdir)
 
 	#Get data in dataframe for analysis
-	df1 = depot_positions(outputdir)
-	df2 = depot_transactions(outputdir)
-	df3 = balance_transactions(outputdir)
-	
-	#Export dataframes to excel
-	df1.to_excel(outputdir+'/'+"depot_positions"+currenttime+".xlsx")
-	df2.to_excel(outputdir+'/'+"depot_transactions"+currenttime+".xlsx")
-	df3.to_excel(outputdir+'/'+"balance_transactions"+currenttime+".xlsx")
-
+	df1 = depot_positions(outputdir,currenttime())
+	df2 = depot_transactions(outputdir,currenttime())
+	df3 = balance_transactions(outputdir,currenttime())
 
 if __name__ == "__main__":
 	start()
