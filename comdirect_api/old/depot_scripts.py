@@ -11,10 +11,8 @@ def depot_transactions(outputdir, currenttime):
         "executionPrice.value",
         "transactionValue.value",
     ]
-    newheader = ["Date", "Quantity", "WKN",
-                 "Name", "Type", "UnitPrice", "TotalPrice"]
-    df = get_df("depot_transactions", header,
-                newheader, outputdir, currenttime)
+    newheader = ["Date", "Quantity", "WKN", "Name", "Type", "UnitPrice", "TotalPrice"]
+    df = get_df("depot_transactions", header, newheader, outputdir, currenttime)
     return df
 
 

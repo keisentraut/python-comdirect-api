@@ -6,6 +6,7 @@ include README.md
 include *.py *.rst *.toml *.txt tox.ini
 exclude .stickler.yml
 
-recursive-include comdirect-api *.py 
+recursive-include comdirect_api *.py 
 recursive-include bin *.md *.py *.bat
+recursive-include doc *.pdf
 

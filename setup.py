@@ -36,7 +36,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name="comdirect-api",  # Required
+    name="comdirect_api",  # Required
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
     #
@@ -109,7 +109,7 @@ setup(
     keywords="comdirect rest api",  # Optional
     # When your source code is in a subdirectory under the project root, e.g.
     # `comdirect-api/`, it is necessary to specify the `package_dir` argument.
-    package_dir={"": "comdirect-api"},  # Optional
+    package_dir={"": "comdirect_api"},  # Optional
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
     #
