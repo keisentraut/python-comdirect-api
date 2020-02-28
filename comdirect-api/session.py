@@ -4,8 +4,6 @@ import datetime
 import base64
 import io
 import json
-from PIL import Image
-
 
 def currenttime():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d%H%M%S%f")
@@ -14,6 +12,7 @@ def is_valid_TAN(tan):
     return type(tan) == str and len(tan) == 6 and set(tan) <= set("0123456789")
 
 def default_callback_photo_tan(pngImage):
+    from PIL import Image
     Image.open(io.BytesIO(pngImage)).show()
     photo_tan = input("Please enter Photo-TAN: ")
     if not is_valid_TAN(photo_tan):
@@ -29,9 +28,11 @@ def default_callback_sms_tan():
 
 class Session():
     def __init__(self, client_id, client_secret, username, password, 
-            callback_photo_tan=default_callback_photo_tan,
-            callback_sms_tan=None,
+            callback_photo_tan = default_callback_photo_tan,
+            callback_sms_tan   = default_callback_sms_tan,
             autorenew=True):
+        self.autorenew = autorenew 
+
         # POST /oauth/token
         response = requests.post(
             "https://api.comdirect.de/oauth/token",
@@ -56,7 +57,7 @@ class Session():
             headers={
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
-                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{session_id}","requestId":"{currenttime()}"}}}}',
+                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}","requestId":"{currenttime()}"}}}}',
             },
         )
         if not response.status_code == 200:
@@ -66,22 +67,70 @@ class Session():
 
         # POST /session/clients/user/v1/sessions/{sessionId}/validate
         response = requests.post(
-            f"https://api.comdirect.de/api/session/clients/user/v1/sessions/{session_id}/validate",
+            f"https://api.comdirect.de/api/session/clients/user/v1/sessions/{self.session_id}/validate",
             allow_redirects=False,
             headers={
                 "Accept": "application/json",
-                "Authorization": "Bearer " + access_token,
-                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{session_id}","requestId":"{currenttime()}"}}}}',
+                "Authorization": "Bearer {self.access_token}",
+                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}","requestId":"{currenttime()}"}}}}',
                 "Content-Type": "application/json",
             },
-            data='{"identifier":"%s","sessionTanActive":true,"activated2FA":true}'
-            % session_id,
+            data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
         )
-
+        if response.status_code != 201:
+            raise RuntimeError(f"POST /session/clients/user/v1/sessions/.../validate returned status code {response.status_code}")
         tmp = json.loads(response.headers["x-once-authentication-info"])
         challenge_id = tmp["id"]
         challenge = tmp["challenge"]
+        typ = tmp["typ"]
+        if typ == "P_TAN":
+            if callback_photo_tan:
+                tan = callback_photo_tan(base64.b64decode(challenge))
+            else:
+                # TODO: we could retry with other TAN type...
+                raise RuntimeError("cannot handle photo tan because you did not provide handler")
+        elif typ == "M_TAN":
+            if callback_sms_tan:
+                tan = callback_sms_tan()
+            else:
+                # TODO: we could retry with other TAN type...
+                raise RuntimeError("cannot handle SMS tan because you did not provide handler")
+        else:
+            raise RuntimeError(f"unknown TAN type {typ} with challenge {challenge}")
 
+        # PATCH /session/clients/user/v1/sessions/{sessionId}
+        response = requests.patch(
+            f"https://api.comdirect.de/api/session/clients/user/v1/sessions/{self.session_id}",
+            allow_redirects=False,
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+                "x-http-request-info": f'{{clientRequestId":{{sessionId":"{self.session_id}","requestId":"{currenttime()}"}}}}',
+                "Content-Type": "application/json",
+                "x-once-authentication-info": f'{{"id":"{challenge_id}"}}',
+                "x-once-authentication": challenge_tan,
+            },
+            data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
+        )
+        tmp = response.json()
+        self.session_id = tmp["identifier"]
+        # POST https://api.comdirect.de/oauth/token
+        response = requests.post(
+            "https://api.comdirect.de/oauth/token",
+            allow_redirects=False,
+            headers={
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            data=f"client_id={client_id}&client_secret={client_secret}&grant_type=cd_secondary&token={self.access_token}",
+        )
+        # print("access response: " + response.text)
+        tmp = response.json()
+        self.access_token = tmp["access_token"]
+        self.refresh_token = tmp["refresh_token"]
+        self.kdnr = tmp["kdnr"]  # Kundennummer / number of customer
+        self.bpid = tmp["bpid"]  # no clue what this is
+        self.kontakt_id = tmp["kontaktId"]  # no clue what this is
 
     def __del__(self):
         # DELETE https://api.comdirect.de/oauth/revoke
@@ -90,7 +139,7 @@ class Session():
             allow_redirects=False,
             headers={
                 "Accept": "application/json",
-                "Authorization": f"Bearer {access_token}",
+                "Authorization": f"Bearer {self.access_token}",
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
@@ -100,121 +149,6 @@ class Session():
         print("token revoked")
 
 
-    def _autorenew(self):
+    def renew_token(self):
+        print("TODO: renew token is not implemented")
         # TODO: implement me
-        
-
-def authorization(client_id, client_secret, username, password):
-
-    # PATCH /session/clients/user/v1/sessions/{sessionId}
-    response = requests.patch(
-        "https://api.comdirect.de/api/session/clients/user/v1/sessions/%s" % session_id,
-        allow_redirects=False,
-        headers={
-            "Accept": "application/json",
-            "Authorization": "Bearer " + access_token,
-            "x-http-request-info": '{"clientRequestId":{"sessionId":"%s","requestId":"%s"}}'
-            % (session_id, currenttime()),
-            "Content-Type": "application/json",
-            "x-once-authentication-info": '{"id":"%s"}' % challenge_id,
-            "x-once-authentication": challenge_tan,
-        },
-        data='{"identifier":"%s","sessionTanActive":true,"activated2FA":true}'
-        % session_id,
-    )
-
-    tmp = response.json()
-    session_id = tmp["identifier"]
-
-    # POST https://api.comdirect.de/oauth/token
-    response = requests.post(
-        "https://api.comdirect.de/oauth/token",
-        allow_redirects=False,
-        headers={
-            "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-        data="client_id=%s&client_secret=%s&grant_type=cd_secondary&token=%s"
-        % (client_id, client_secret, access_token),
-    )
-    # print("access response: " + response.text)
-    tmp = response.json()
-    access_token = tmp["access_token"]
-    refresh_token = tmp["refresh_token"]
-    kdnr = tmp["kdnr"]  # Kundennummer / number of customer
-    bpid = tmp["bpid"]  # no clue what this is
-    kontakt_id = tmp["kontaktId"]  # no clue what this is
-    accountId = "8F87391AA00D44FBB7C780069A7020E5"
-    return accountId, access_token, session_id
-
-
-def revoke_token(access_token, session_id):
-    
-def get_requests(url, access_token, session_id, client_id, client_secret, filename):
-    response = requests.get(
-        url,
-        allow_redirects=False,
-        headers={
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + access_token,
-            "x-http-request-info": '{"clientRequestId":{"sessionId":"%s","requestId":"%s"}}'
-            % (session_id, currenttime()),
-        },
-        data="client_id=%s&client_secret=%s&grant_type=cd_secondary&token=%s"
-        % (client_id, client_secret, access_token),
-    )
-    with open(filename, "w") as outfile:
-        outfile.write(response.text)
-    if url == "https://api.comdirect.de/api/brokerage/clients/user/v3/depots":
-        tmp = response.json()
-        return tmp["values"][0]["depotId"]
-    else:
-        return None
-
-
-def main_requests(
-    client_id,
-    client_secret,
-    username,
-    password,
-    min_transactiondate,
-    max_transactiondate,
-    currentdir,
-):
-    accountId, access_token, session_id = authorization(
-        client_id, client_secret, username, password
-    )
-    url = (
-        "https://api.comdirect.de/api/banking/v1/accounts/%s/transactions"
-        "?min-bookingdate[gte]=%s&max-bookingdate[lte]=%s"
-        % (accountId, min_transactiondate, max_transactiondate)
-    )
-    filename = currentdir + "/balance_transactions.json"
-    response = get_requests(
-        url, access_token, session_id, client_id, client_secret, filename
-    )
-    url = "https://api.comdirect.de/api/brokerage/clients/user/v3/depots"
-    filename = currentdir + "/depot_information.json"
-    depot_id = get_requests(
-        url, access_token, session_id, client_id, client_secret, filename
-    )
-    url = (
-        "https://api.comdirect.de/api/brokerage/v3/depots/%s/transactions"
-        "?min-bookingdate[gte]=%s&max-bookingdate[lte]=%s"
-        % (depot_id, min_transactiondate, max_transactiondate)
-    )
-    filename = currentdir + "/depot_transactions.json"
-    response = get_requests(
-        url, access_token, session_id, client_id, client_secret, filename
-    )
-    url = "https://api.comdirect.de/api/brokerage/v3/depots/%s/positions" % depot_id
-    filename = currentdir + "/depot_positions.json"
-    response = get_requests(
-        url, access_token, session_id, client_id, client_secret, filename
-    )
-    revoke_token(access_token, session_id)
-
-
-if __name__ == "__main__":
-    main_requests()
