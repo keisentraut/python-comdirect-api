@@ -16,21 +16,21 @@ def is_valid_TAN(tan):
     return type(tan) == str and len(tan) == 6 and set(tan) <= set("0123456789")
 
 
-def default_callback_photo_tan(pngImage):
+def default_callback_p_tan(pngImage):
     from PIL import Image
 
     Image.open(io.BytesIO(pngImage)).show()
-    photo_tan = input("Please enter Photo-TAN: ")
-    if not is_valid_TAN(photo_tan):
-        raise ValueError(f"invalid Photo-TAN {photo_tan}")
-    return photo_tan
+    p_tan = input("Please enter Photo-TAN: ")
+    if not is_valid_TAN(p_tan):
+        raise ValueError(f"invalid Photo-TAN {p_tan}")
+    return p_tan
 
 
-def default_callback_sms_tan():
-    sms_tan = input("Please enter your SMS-TAN: ")
-    if not is_valid_TAN(sms_tan):
-        raise ValueError(f"invalid SMS-TAN {sms_tan}")
-    return sms_tan
+def default_callback_m_tan():
+    m_tan = input("Please enter your SMS-TAN: ")
+    if not is_valid_TAN(m_tan):
+        raise ValueError(f"invalid SMS-TAN {m_tan}")
+    return m_tan
 
 
 class Session:
@@ -40,8 +40,8 @@ class Session:
         password,
         client_id,
         client_secret,
-        callback_photo_tan=default_callback_photo_tan,
-        callback_sms_tan=default_callback_sms_tan,
+        callback_p_tan=default_callback_p_tan,
+        callback_m_tan=default_callback_m_tan,
         autorefresh=False,
     ):
         self.autorefresh = autorefresh
@@ -50,8 +50,8 @@ class Session:
         response = requests.post(
             "https://api.comdirect.de/oauth/token",
             f"client_id={client_id}&"
-            f"client_secret={client_secret}"
-            f"&username={username}&"
+            f"client_secret={client_secret}&"
+            f"username={username}&"
             f"password={password}&"
             f"grant_type=password",
             allow_redirects=False,
@@ -77,7 +77,7 @@ class Session:
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
                 "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-                f'requestId":"{currenttime()}"}}}}',
+                f'"requestId":"{currenttime()}"}}}}',
             },
         )
         if not response.status_code == 200:
@@ -96,7 +96,7 @@ class Session:
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
                 "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-                f'requestId":"{currenttime()}"}}}}',
+                f'"requestId":"{currenttime()}"}}}}',
                 "Content-Type": "application/json",
             },
             data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
@@ -110,16 +110,16 @@ class Session:
         challenge = tmp["challenge"]
         typ = tmp["typ"]
         if typ == "P_TAN":
-            if callback_photo_tan:
-                tan = callback_photo_tan(base64.b64decode(challenge))
+            if callback_p_tan:
+                tan = callback_p_tan(base64.b64decode(challenge))
             else:
                 # TODO: we could retry with other TAN type...
                 raise RuntimeError(
                     "cannot handle photo tan because you did not provide handler"
                 )
         elif typ == "M_TAN":
-            if callback_sms_tan:
-                tan = callback_sms_tan()
+            if callback_m_tan:
+                tan = callback_m_tan()
             else:
                 # TODO: we could retry with other TAN type...
                 raise RuntimeError(
@@ -136,7 +136,7 @@ class Session:
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
                 "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-                f'requestId":"{currenttime()}"}}}}',
+                f'"requestId":"{currenttime()}"}}}}',
                 "Content-Type": "application/json",
                 "x-once-authentication-info": f'{{"id":"{challenge_id}"}}',
                 "x-once-authentication": tan,
@@ -162,7 +162,6 @@ class Session:
             data=f"client_id={client_id}&client_secret={client_secret}&"
                  f"grant_type=cd_secondary&token={self.access_token}",
         )
-        print("access response: " + response.text)
         if not response.status_code == 200:
             raise RuntimeError(
                 f"POST https://api.comdirect.de/oauth/token returned status {response.status_code}"
@@ -200,8 +199,6 @@ class Session:
                 },
                 data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
             )
-            print(response.text)
-            print(response.status_code)
             if not response.status_code == 204:
                 raise RuntimeError(
                     f"DELETE https://api.comdirect.de/oauth/revoke returned unexpected status {response.status_code}"
@@ -220,10 +217,29 @@ class Session:
             },
             data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
         )
-        print(response.text)
-        print(response.status_code)
         if not response.status_code == 204:
             raise RuntimeError(
                 f"DELETE https://api.comdirect.de/oauth/revoke returned unexpected status {response.status_code}"
             )
         self.isRevoked = True
+
+    def _get_authorized(self, url):
+        return requests.get(
+            url,
+            allow_redirects=False,
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
+                f'"requestId":"{currenttime()}"}}}}',
+            })
+
+    # GET /banking/clients/user/v1/accounts/balances
+    def account_get_balances(self, useCache=True):
+        if not (useCache and (hasattr(self, "account_balances") and self.account_balances)):
+            response = self._get_authorized("https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances")
+            if response.status_code != 200:
+                raise RuntimeError(
+                    f"GET /banking/clients/user/v1/accounts/balances returned status code {response.status_code}")
+            self.account_balances = response.json()
+        return self.account_balances

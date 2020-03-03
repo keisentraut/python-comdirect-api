@@ -6,6 +6,7 @@ include AUTHORS
 include README.md
 include *.py *.rst *.toml *.txt tox.ini
 
+exclude bin/creds.py
 
 recursive-include comdirect_api *.py 
 recursive-include bin *.md *.py *.bat
