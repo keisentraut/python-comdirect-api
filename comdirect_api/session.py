@@ -5,6 +5,7 @@ import base64
 import io
 import json
 import time
+import threading
 
 
 def currenttime():
@@ -81,7 +82,8 @@ class Session:
         )
         if not response.status_code == 200:
             raise RuntimeError(
-                f"GET https://api.comdirect.de/api/session/clients/user/v1/sessions returned status {response.status_code}"
+                f"GET https://api.comdirect.de/api/session/clients/user/v1/sessions"
+                f"returned status {response.status_code}"
             )
         tmp = response.json()
         self.session_id = tmp[0]["identifier"]
@@ -93,7 +95,8 @@ class Session:
             headers={
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
-                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}","requestId":"{currenttime()}"}}}}',
+                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
+                f'requestId":"{currenttime()}"}}}}',
                 "Content-Type": "application/json",
             },
             data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
@@ -132,7 +135,8 @@ class Session:
             headers={
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
-                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}","requestId":"{currenttime()}"}}}}',
+                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
+                f'requestId":"{currenttime()}"}}}}',
                 "Content-Type": "application/json",
                 "x-once-authentication-info": f'{{"id":"{challenge_id}"}}',
                 "x-once-authentication": tan,
@@ -142,7 +146,8 @@ class Session:
         tmp = response.json()
         if not response.status_code == 200:
             raise RuntimeError(
-                f"PATCH https://api.comdirect.de/session/clients/user/v1/sessions/... returned status {response.status_code}"
+                f"PATCH https://api.comdirect.de/session/clients/user/v1/sessions/...:"
+                f"returned status {response.status_code}"
             )
         self.session_id = tmp["identifier"]
 
@@ -154,7 +159,8 @@ class Session:
                 "Accept": "application/json",
                 "Content-Type": "application/x-www-form-urlencoded",
             },
-            data=f"client_id={client_id}&client_secret={client_secret}&grant_type=cd_secondary&token={self.access_token}",
+            data=f"client_id={client_id}&client_secret={client_secret}&"
+                 f"grant_type=cd_secondary&token={self.access_token}",
         )
         print("access response: " + response.text)
         if not response.status_code == 200:

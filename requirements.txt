@@ -4,5 +4,5 @@ requests
 uuid
 base64
 io
-PIL
+pillow
 time
