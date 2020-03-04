@@ -7,7 +7,8 @@
 #     client_id = "User_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 #     client_secret = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 # Alternatively, just hard-code them here.
-from .creds import user, password, client_id, client_secret
+from creds import user, password, client_id, client_secret
+
 from comdirect_api.session import Session
 
 # getting your balance is now easy!

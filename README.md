@@ -15,14 +15,13 @@ Verify tests pass by running `tox`. Additionally, run `black .` in order to fix 
 
 Use at own risk. I'm not responsible if you lock your account or lose all your money. 
 
-
 # Prerequisites
 
 This module needs the following packages. This will be checked before the start:  
+```
 json  
 datetime  
 requests  
 uuid  
-base64  
-io  
-PIL  
+pillow
+```
