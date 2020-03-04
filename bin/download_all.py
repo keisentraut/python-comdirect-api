@@ -11,6 +11,16 @@ from creds import user, password, client_id, client_secret
 
 from comdirect_api.session import Session
 
-# getting your balance is now easy!
+from pprint import pprint
+
+# This downloads all documents
 s = Session(user, password, client_id, client_secret)
-print(s.account_get_balances())
+for d in s.documents_list():
+    filename = d.get_filename()
+    content = s.documents_download(d)
+    if type(content) == str:
+        with open(filename, "w") as f:
+            f.write(content)
+    else:
+        with open(filename, "wb") as f:
+            f.write(content)

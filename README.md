@@ -6,6 +6,17 @@ Currently, this not yet released code and still needs to be improved a lot.
 It is not yet usable if you can not use Python.
 However, this might change in the future, so stay tuned!
 
+# Testing
+
+In order to test this, you currently need to do the following:
+
+```
+python setup.py sdist
+pip install dist/comdirect_api-0.1.tar.gz
+```
+
+Then, run ```python bin/example.py```.
+
 # Contributing
 
 Contributions are welcome.
@@ -18,6 +29,7 @@ Use at own risk. I'm not responsible if you lock your account or lose all your m
 # Prerequisites
 
 This module needs the following packages. This will be checked before the start:  
+
 ```
 json  
 datetime  

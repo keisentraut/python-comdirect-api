@@ -7,31 +7,8 @@ import json
 import time
 import threading
 
-
-def currenttime():
-    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d%H%M%S%f")
-
-
-def is_valid_TAN(tan):
-    return type(tan) == str and len(tan) == 6 and set(tan) <= set("0123456789")
-
-
-def default_callback_p_tan(pngImage):
-    from PIL import Image
-
-    Image.open(io.BytesIO(pngImage)).show()
-    p_tan = input("Please enter Photo-TAN: ")
-    if not is_valid_TAN(p_tan):
-        raise ValueError(f"invalid Photo-TAN {p_tan}")
-    return p_tan
-
-
-def default_callback_m_tan():
-    m_tan = input("Please enter your SMS-TAN: ")
-    if not is_valid_TAN(m_tan):
-        raise ValueError(f"invalid SMS-TAN {m_tan}")
-    return m_tan
-
+import comdirect_api.types
+from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan, currenttime
 
 class Session:
     def __init__(
@@ -223,23 +200,42 @@ class Session:
             )
         self.isRevoked = True
 
-    def _get_authorized(self, url):
-        return requests.get(
-            url,
-            allow_redirects=False,
-            headers={
-                "Accept": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-                "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-                f'"requestId":"{currenttime()}"}}}}',
-            })
+    def _get_authorized(self, url, extraheaders={}):
+        headers={
+            "Accept": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+            "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
+            f'"requestId":"{currenttime()}"}}}}',
+        }
+        headers.update(extraheaders)
+        response = requests.get(url, allow_redirects=False, headers=headers)
+        if response.status_code != 200:
+            raise RuntimeError(f"{url} returned HTTP status {response.status_code}")
+        return response
 
-    # GET /banking/clients/user/v1/accounts/balances
-    def account_get_balances(self, useCache=True):
-        if not (useCache and (hasattr(self, "account_balances") and self.account_balances)):
+
+    def account_get(self, cached=True): 
+        if not (cached and (hasattr(self, "account_balances") and self.account_balances)):
             response = self._get_authorized("https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances")
-            if response.status_code != 200:
-                raise RuntimeError(
-                    f"GET /banking/clients/user/v1/accounts/balances returned status code {response.status_code}")
             self.account_balances = response.json()
         return self.account_balances
+
+    # GET /banking/clients/user/v1/accounts/balances
+    def account_get_balances(self, cached=True):
+        if not (cached and (hasattr(self, "account_balances") and self.account_balances)):
+            response = self._get_authorized("https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances")
+            self.account_balances = response.json()
+        return self.account_balances
+
+    # GET /messages/clients/user/v2/documents 
+    def documents_list(self, uuid=None, paging_first=0, paging_count=1000): 
+        if uuid == None:
+            uuid = "user"
+        response = self._get_authorized(f"https://api.comdirect.de/api/messages/clients/{uuid}/v2/documents?paging-first={paging_first}&paging-count={paging_count}")
+        return [comdirect_api.types.Document(i) for i in response.json()["values"]]
+
+    def documents_download(self, document): 
+        response = self._get_authorized(f"https://api.comdirect.de/api/messages/v2/documents/{document.documentId}", 
+                extraheaders={"Accept": document.mimeType })
+        return response.text
+
