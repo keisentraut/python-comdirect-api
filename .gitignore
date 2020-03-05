@@ -1,5 +1,5 @@
 *.pyc
-.tox
+.tox/
 *.egg-info
 dist/
 bin/creds.py
