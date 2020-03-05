@@ -54,10 +54,10 @@ Recent transactions:
 *Use at own risk. I'm not responsible if you lock your account or lose all your money.*
 
 
-
 # Contributing
 
 Contributions are very welcome. Please open a pull request.
+Before you commit, run ```tox .``` in order to check for code style and to run the (not yet existing...) test cases.
 
 ## Dependencies 
 
