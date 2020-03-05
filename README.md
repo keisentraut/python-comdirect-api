@@ -6,8 +6,8 @@ Currently, only parts of this comdirect API are implemented.
 Parts which are already implemented and work:
 
 - OAuth 2-factor login process
-- DOCUMENTS
-- ACCOUNT (partially)
+- DOCUMENTS 
+- ACCOUNT (balances & transactions)
 
 Still to do:
 
@@ -32,8 +32,21 @@ After installing it, you can run one of the scripts in the ```bin``` folder or w
 ```
 $ python bin/get_account_balances.py 
 Please enter Photo-TAN: 123456
-Balance of Direct Access Savings-Plus Account (DE08200411112345678901): 0 EUR
-Balance of Checking Account (DE00200411112345678901): 1234.56 EUR
+Balance of Direct Access Savings-Plus Account (DE012345678901234567890): 0 EUR
+Recent transactions:
+  2019-09-11 2019-09-11 -3000.15 EUR TRANSFER
+     Reference: I2219254G2705657/2
+     RemittanceInfo: 01Uebertrag auf Girokonto 02End-to-End-Ref.: 03nicht angegeben 
+     EndToEndReference: nicht angegeben
+
+
+Balance of Checking Account (DE09876543210987654321): 1234.56 EUR
+Recent transactions:
+  2020-01-03 2020-01-03 -12.34 EUR DIRECT_DEBIT
+     Reference: 5012345678901234/12345
+     RemittanceInfo: 01Globus TS Forchheim//Forchheim/DE 022020-01-03T20:07:16 KFN 0 VJ 1234
+     EndToEndReference: None
+[... snip ...]
 ```
 
 # Disclaimer

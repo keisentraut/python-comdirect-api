@@ -1,8 +1,6 @@
 import requests
 import uuid
-import datetime
 import base64
-import io
 import json
 import time
 import threading
@@ -214,21 +212,41 @@ class Session:
             raise RuntimeError(f"{url} returned HTTP status {response.status_code}")
         return response
 
-    ############################## ACCOUNT ####################################
+    # ------------------------------ ACCOUNT ----------------------------------
     # GET /banking/clients/user/v1/accounts/balances
     def account_get_balances(self, paging_first=0, paging_count=1000):
         response = self._get_authorized(
-                f"https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances"
-                f"?paging-first={paging_first}&paging-count={paging_count}")
+            f"https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances"
+            f"?paging-first={paging_first}&paging-count={paging_count}")
         return [comdirect_api.types.AccountBalance(i) for i in response.json()["values"]]
-    
-    ############################## DOCUMENTS ##################################
+
+    # GET /banking/v2/accounts/{accountid}/balances
+    def account_get_balance(self, accountid):
+        response = self._get_authorized(f"https://api.comdirect.de/api/banking/v2/accounts/{accountid}/balances")
+        return comdirect_api.types.AccountBalance(response.json())
+
+    # GET /banking/v2/accounts/{accountid}/transactions
+    # TODO: The filters do not yet work.
+    # see https://community.comdirect.de/t5/Website-Apps/Rest-API-Filter-Parameter/m-p/108710
+    def account_get_transactions(self, accountid, transactionDirection="CREDIT_AND_DEBIT",
+                                 min_bookingdate=None, max_bookingdate=None, transactionState="BOTH"):
+        parameters = f"transactionDirection={transactionDirection}&transactionState={transactionState}"
+        if min_bookingdate:
+            parameters += f"&min-bookingdate={min_bookingdate}"
+        if max_bookingdate:
+            parameters += f"&min-bookingdate={max_bookingdate}"
+        response = self._get_authorized(
+            f"https://api.comdirect.de/api/banking/v1/accounts/{accountid}/transactions?{parameters}")
+        return [comdirect_api.types.AccountTransaction(i) for i in response.json()["values"]]
+
+    # ------------------------------ DOCUMENTS --------------------------------
     # GET /messages/clients/user/v2/documents
     def documents_list(self, uuid=None, paging_first=0, paging_count=1000):
-        if uuid == None:
+        if uuid is None:
             uuid = "user"
         response = self._get_authorized(
-            f"https://api.comdirect.de/api/messages/clients/{uuid}/v2/documents?paging-first={paging_first}&paging-count={paging_count}")
+            f"https://api.comdirect.de/api/messages/clients/{uuid}/v2/documents?"
+            f"paging-first={paging_first}&paging-count={paging_count}")
         return [comdirect_api.types.Document(i) for i in response.json()["values"]]
 
     # GET /messages/v2/documents/{documentId}
