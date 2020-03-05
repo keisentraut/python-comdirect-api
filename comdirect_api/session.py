@@ -8,7 +8,8 @@ import time
 import threading
 
 import comdirect_api.types
-from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan, currenttime
+from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan, timestamp
+
 
 class Session:
     def __init__(
@@ -54,7 +55,7 @@ class Session:
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
                 "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-                f'"requestId":"{currenttime()}"}}}}',
+                f'"requestId":"{timestamp()}"}}}}',
             },
         )
         if not response.status_code == 200:
@@ -73,7 +74,7 @@ class Session:
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
                 "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-                f'"requestId":"{currenttime()}"}}}}',
+                f'"requestId":"{timestamp()}"}}}}',
                 "Content-Type": "application/json",
             },
             data=f'{{"identifier":"{self.session_id}","sessionTanActive":true,"activated2FA":true}}',
@@ -113,7 +114,7 @@ class Session:
                 "Accept": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
                 "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-                f'"requestId":"{currenttime()}"}}}}',
+                f'"requestId":"{timestamp()}"}}}}',
                 "Content-Type": "application/json",
                 "x-once-authentication-info": f'{{"id":"{challenge_id}"}}',
                 "x-once-authentication": tan,
@@ -201,11 +202,11 @@ class Session:
         self.isRevoked = True
 
     def _get_authorized(self, url, extraheaders={}):
-        headers={
+        headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer {self.access_token}",
             "x-http-request-info": f'{{"clientRequestId":{{"sessionId":"{self.session_id}",'
-            f'"requestId":"{currenttime()}"}}}}',
+            f'"requestId":"{timestamp()}"}}}}',
         }
         headers.update(extraheaders)
         response = requests.get(url, allow_redirects=False, headers=headers)
@@ -213,29 +214,25 @@ class Session:
             raise RuntimeError(f"{url} returned HTTP status {response.status_code}")
         return response
 
-
-    def account_get(self, cached=True): 
-        if not (cached and (hasattr(self, "account_balances") and self.account_balances)):
-            response = self._get_authorized("https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances")
-            self.account_balances = response.json()
-        return self.account_balances
-
+    ############################## ACCOUNT ####################################
     # GET /banking/clients/user/v1/accounts/balances
-    def account_get_balances(self, cached=True):
-        if not (cached and (hasattr(self, "account_balances") and self.account_balances)):
-            response = self._get_authorized("https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances")
-            self.account_balances = response.json()
-        return self.account_balances
-
-    # GET /messages/clients/user/v2/documents 
-    def documents_list(self, uuid=None, paging_first=0, paging_count=1000): 
+    def account_get_balances(self, paging_first=0, paging_count=1000):
+        response = self._get_authorized(
+                f"https://api.comdirect.de/api/banking/clients/user/v1/accounts/balances"
+                f"?paging-first={paging_first}&paging-count={paging_count}")
+        return [comdirect_api.types.AccountBalance(i) for i in response.json()["values"]]
+    
+    ############################## DOCUMENTS ##################################
+    # GET /messages/clients/user/v2/documents
+    def documents_list(self, uuid=None, paging_first=0, paging_count=1000):
         if uuid == None:
             uuid = "user"
-        response = self._get_authorized(f"https://api.comdirect.de/api/messages/clients/{uuid}/v2/documents?paging-first={paging_first}&paging-count={paging_count}")
+        response = self._get_authorized(
+            f"https://api.comdirect.de/api/messages/clients/{uuid}/v2/documents?paging-first={paging_first}&paging-count={paging_count}")
         return [comdirect_api.types.Document(i) for i in response.json()["values"]]
 
-    def documents_download(self, document): 
-        response = self._get_authorized(f"https://api.comdirect.de/api/messages/v2/documents/{document.documentId}", 
-                extraheaders={"Accept": document.mimeType })
+    # GET /messages/v2/documents/{documentId}
+    def documents_download(self, document):
+        response = self._get_authorized(f"https://api.comdirect.de/api/messages/v2/documents/{document.documentId}",
+                                        extraheaders={"Accept": document.mimeType})
         return response.content
-

@@ -6,3 +6,4 @@ base64
 io
 pillow
 time
+decimal

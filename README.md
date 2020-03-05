@@ -19,31 +19,45 @@ Still to do:
 
 # How to use this
 
-In order to test this, you currently need to do the following:
+This Python module is currently not yet on PyPi.
+So in order to build it, you need to clone this repository and then package it yourself:
 
 ```
 python setup.py sdist
 pip install dist/comdirect_api-0.1.tar.gz
 ```
 
-Then, run ```python bin/download_all_documents.py``` or something else in the ```bin/``` folder.
+After installing it, you can run one of the scripts in the ```bin``` folder or write your own script.
+
+```
+$ python bin/get_account_balances.py 
+Please enter Photo-TAN: 123456
+Balance of Direct Access Savings-Plus Account (DE08200411112345678901): 0 EUR
+Balance of Checking Account (DE00200411112345678901): 1234.56 EUR
+```
+
+# Disclaimer
+
+*Use at own risk. I'm not responsible if you lock your account or lose all your money.*
+
+
 
 # Contributing
 
 Contributions are very welcome. Please open a pull request.
 
-# Disclaimer
+## Dependencies 
 
-Use at own risk. I'm not responsible if you lock your account (three wrong login attempts) or lose all your money. 
-
-# Prerequisites
-
-This module needs the following packages. This will be checked before the start:  
+This module needs the following packages. 
 
 ```
-json  
-datetime  
-requests  
-uuid  
+json
+datetime
+requests
+uuid
+base64
+io
 pillow
+time
+decimal
 ```

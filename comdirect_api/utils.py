@@ -1,14 +1,17 @@
 import datetime
 import io
 
+
 def is_alphanum(c):
     ALPHANUM = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
     return c in ALPHANUM
 
+
 def make_printable(s):
     return "".join([i if is_alphanum(i) else "_" for i in s])
 
-def currenttime():
+
+def timestamp():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d%H%M%S%f")
 
 
@@ -31,4 +34,3 @@ def default_callback_m_tan():
     if not is_valid_TAN(m_tan):
         raise ValueError(f"invalid SMS-TAN {m_tan}")
     return m_tan
-
