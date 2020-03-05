@@ -18,9 +18,5 @@ s = Session(user, password, client_id, client_secret)
 for d in s.documents_list():
     filename = d.get_filename()
     content = s.documents_download(d)
-    if type(content) == str:
-        with open(filename, "w") as f:
-            f.write(content)
-    else:
-        with open(filename, "wb") as f:
-            f.write(content)
+    with open(filename, "wb") as f:
+        f.write(content)

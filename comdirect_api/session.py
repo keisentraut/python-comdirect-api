@@ -237,5 +237,5 @@ class Session:
     def documents_download(self, document): 
         response = self._get_authorized(f"https://api.comdirect.de/api/messages/v2/documents/{document.documentId}", 
                 extraheaders={"Accept": document.mimeType })
-        return response.text
+        return response.content
 
