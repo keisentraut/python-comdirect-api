@@ -7,10 +7,10 @@ Parts which are already implemented and work:
 
 - OAuth 2-factor login process
 - DOCUMENTS
+- ACCOUNT (partially)
 
 Still to do:
 
-- ACCOUNT
 - QUOTE
 - ORDER
 - INSTRUMENT
