@@ -1,15 +1,13 @@
-exclude .stickler.yml
-
 include pyproject.toml
 include COPYING
 include AUTHORS
 include README.md
-include *.py *.rst *.toml *.txt tox.ini
-
-exclude bin/creds.py
+include requirements.txt
 
 recursive-include comdirect_api *.py 
-recursive-include bin *.md *.py *.bat
+recursive-include bin *.py
 recursive-include doc *.pdf
-prune comdirect_api/old 
 
+exclude .stickler.yml
+exclude tox.ini
+exclude bin/creds.py

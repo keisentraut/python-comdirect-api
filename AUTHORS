@@ -1,6 +1,7 @@
 keisentraut (Klaus Eisentraut)
-- first proof-of-concept for login 
+- idea and meta-work on module structure
+- DOCUMENTS
+- ACCOUNTS
 
 sebanger
-- refactoring, making it actually usable
-- added more features
+- excel output (unfortunately, this did not survive refactoring so far)

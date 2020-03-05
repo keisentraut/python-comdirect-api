@@ -1,5 +1,6 @@
 linters:
-  flake8:
-    fixer: true
+    flake8:
+        fixer: true
+
 fixers:
-  enable: true
+    enable: true
