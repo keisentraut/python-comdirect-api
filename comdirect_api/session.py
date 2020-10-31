@@ -6,7 +6,7 @@ import time
 import threading
 
 import comdirect_api.types
-from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan, timestamp
+from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan,default_callback_p_tan_push, timestamp
 
 
 class Session:
@@ -18,6 +18,7 @@ class Session:
         client_secret,
         callback_p_tan=default_callback_p_tan,
         callback_m_tan=default_callback_m_tan,
+        callback_p_tan_push =default_callback_p_tan_push,
         autorefresh=False,
     ):
         self.autorefresh = autorefresh
@@ -83,9 +84,9 @@ class Session:
             )
         tmp = json.loads(response.headers["x-once-authentication-info"])
         challenge_id = tmp["id"]
-        challenge = tmp["challenge"]
         typ = tmp["typ"]
         if typ == "P_TAN":
+            challenge = tmp["challenge"]
             if callback_p_tan:
                 tan = callback_p_tan(base64.b64decode(challenge))
             else:
@@ -94,6 +95,7 @@ class Session:
                     "cannot handle photo tan because you did not provide handler"
                 )
         elif typ == "M_TAN":
+            challenge = tmp["challenge"]
             if callback_m_tan:
                 tan = callback_m_tan()
             else:
@@ -101,8 +103,17 @@ class Session:
                 raise RuntimeError(
                     "cannot handle SMS tan because you did not provide handler"
                 )
+        elif typ == "P_TAN_PUSH":
+            # challenge is not available for push-tan, just waiting for confirmation
+            if callback_p_tan_push:
+                tan = callback_p_tan_push()
+            else:
+                # TODO: we could retry with other TAN type...
+                raise RuntimeError(
+                    "cannot handle SMS tan because you did not provide handler"
+                )
         else:
-            raise RuntimeError(f"unknown TAN type {typ} with challenge {challenge}")
+            raise RuntimeError(f"unknown TAN type {typ}")
 
         # PATCH /session/clients/user/v1/sessions/{sessionId}
         response = requests.patch(
