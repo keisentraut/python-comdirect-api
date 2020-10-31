@@ -35,6 +35,7 @@ def default_callback_m_tan():
         raise ValueError(f"invalid SMS-TAN {m_tan}")
     return m_tan
 
+
 def default_callback_p_tan_push():
     m_tan = input("Please press ENTER after confirming push-tan ")
     m_tan = "123456"

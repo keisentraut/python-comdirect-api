@@ -6,7 +6,7 @@ import time
 import threading
 
 import comdirect_api.types
-from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan,default_callback_p_tan_push, timestamp
+from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan, default_callback_p_tan_push, timestamp
 
 
 class Session:
@@ -18,7 +18,7 @@ class Session:
         client_secret,
         callback_p_tan=default_callback_p_tan,
         callback_m_tan=default_callback_m_tan,
-        callback_p_tan_push =default_callback_p_tan_push,
+        callback_p_tan_push=default_callback_p_tan_push,
         autorefresh=False,
     ):
         self.autorefresh = autorefresh
