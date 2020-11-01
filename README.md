@@ -5,7 +5,7 @@ This is a Python implementation of the new [comdirect REST API](https://www.comd
 Currently, only parts of this comdirect API are implemented.
 Parts which are already implemented and work:
 
-- OAuth 2-factor login process
+- OAuth 2-factor login process (Photo-TAN, Push-TAN, SMS-TAN)
 - DOCUMENTS 
 - ACCOUNT (balances & transactions)
 
@@ -15,6 +15,12 @@ Still to do:
 - ORDER
 - INSTRUMENT
 - DEPOT
+
+Most likely, I won't implement those soon, this has two reasons:
+
+- comdirect does not provide test accounts for creating transactions, so I would have to test it on my actual private savings which is crazy.
+- I don't want to write a trading bot, so I don't have a need for this.
+
 
 
 # How to use this
