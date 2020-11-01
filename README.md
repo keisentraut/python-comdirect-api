@@ -63,20 +63,22 @@ Recent transactions:
 # Contributing
 
 Contributions are very welcome. Please open a pull request.
-Before you commit, run ```tox .``` in order to check for code style and to run the (not yet existing...) test cases.
+Before you commit, run ```flake8 --max-line-length 120``` in order to check for code style.
+There is also a file ```tox.ini```, but there are no unit tests yet.
+I can't really create unit tests because there comdirect does not offer any public test accounts.
 
 ## Dependencies 
 
 This module needs the following packages. 
 
 ```
-json
-datetime
-requests
-uuid
 base64
-io
-pillow
-time
+datetime
 decimal
+io
+json
+pillow
+requests
+time
+uuid
 ```
