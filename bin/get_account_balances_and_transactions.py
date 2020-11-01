@@ -37,6 +37,8 @@ for account_balance in s.account_get_balances():
         max_bookingdate=(datetime.date.today()).strftime("%Y-%m-%d"),
     )
     for t in transactions:
+        if t.bookingDate == None:
+            t.bookingDate = "XXXX-XX-XX"
         print(f"  {t.bookingDate} {t.valutaDate} {t.amount} {t.transactionType}\n"
               f"     Reference: {compress_duplicate_spaces(t.reference)}\n"
               f"     RemittanceInfo: {compress_duplicate_spaces(t.remittanceInfo)}\n"

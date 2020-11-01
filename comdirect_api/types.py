@@ -27,9 +27,11 @@ AccountType = {
 
 # TODO: This list is incomplete.
 TransactionType = {
+    "ATM_WITHDRAWAL" : "ATM Withdrawal",
     "DIRECT_DEBIT": "Direct Debit",
     "SECURITIES": "Securities",
     "TRANSFER": "Transfer",
+    "UNKNOWN": "Unknown", # this happens with unbooked transactions
     "XX1": "Saving Plan",
     "XX2": "Investment Saving",
     "XX3": "Bank fees",
@@ -131,11 +133,12 @@ class AccountTransaction():
         'remitter': {'holderName': 'Globus Handelshof'},
         'transactionType': {'key': 'DIRECT_DEBIT', 'text': 'Direct Debit'},
         'valutaDate': '2020-01-03'},
+
     """
 
     def __init__(self, json):
         self.amount = AmountValue(json["amount"])
-        self.bookingDate = DateString(json["bookingDate"])
+        self.bookingDate = DateString(json["bookingDate"]) if json["bookingDate"] else None
         self.bookingStatus = json["bookingStatus"]
         assert(self.bookingStatus in ["BOOKED", "NOTBOOKED"])
         self.booked = (self.bookingStatus == "BOOKED")
@@ -152,6 +155,7 @@ class AccountTransaction():
         # TODO: This will break if you have other transaction types.
         # The problem is that comdirect didn't document the keys.
         # Please report, if you learn what keys there are!
+        print(self.transactionType)
         assert(self.transactionType in TransactionType)
         self.valutaDate = json["valutaDate"]  # can be an invalid date!
 
