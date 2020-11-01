@@ -6,7 +6,10 @@ import time
 import threading
 
 import comdirect_api.types
-from comdirect_api.utils import default_callback_p_tan, default_callback_m_tan, default_callback_p_tan_push, timestamp
+from comdirect_api.utils import default_callback_p_tan, \
+    default_callback_m_tan,\
+    default_callback_p_tan_push,\
+    timestamp
 
 
 class Session:
@@ -104,7 +107,7 @@ class Session:
                     "cannot handle SMS tan because you did not provide handler"
                 )
         elif typ == "P_TAN_PUSH":
-            # challenge is not available for push-tan, just waiting for confirmation
+            # challenge is not available for push-tan,wait for confirmation
             if callback_p_tan_push:
                 tan = callback_p_tan_push()
             else:
