@@ -30,15 +30,10 @@ setup(
     packages=["comdirect_api"],
     python_requires=">=3.6",
     install_requires=[
-        "json",
         "datetime",
         "requests",
         "uuid",
-        "base64",
-        "io",
         "pillow",
-        "time",
-        "decimal",
     ],
     project_urls={
         "Bug Reports": "https://github.com/keisentraut/python-comdirect-api/issues",
