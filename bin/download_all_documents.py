@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from comdirect_api.session import Session
 from creds import user, password, client_id, client_secret
-
+import os
+import sys
 
 # During development, you can store your credentials in bin/creds.py.
 # Just put something like the following there:
@@ -13,8 +14,11 @@ from creds import user, password, client_id, client_secret
 
 # Define directory to store documents in (or leave emtpy)
 # Alternatively, you can use a script parameter
-PATH = "comdirect postbox"
-# PATH = sys.argv[1]
+if len(sys.argv) == 2:
+    PATH = os.path.dirname(sys.argv[1])
+else:
+    print(f"usage: {sys.argv[0]} PATH")
+ 
 
 # This downloads all documents (pagingcount defines the number of
 # documents per page
@@ -31,7 +35,8 @@ while hasmore:
         filename = d.get_filename()
         print(f"downloading document {pagingfirst +count} {filename}...")
         content = s.documents_download(d)
-        with open('{0}\\{1}'.format(PATH, filename), "wb") as f:
+
+        with open(os.path.join(PATH, filename), "wb") as f:
             f.write(content)
     hasmore = count == pagingcount
     if hasmore:
