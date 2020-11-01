@@ -5,3 +5,6 @@ keisentraut (Klaus Eisentraut)
 
 sebanger
 - excel output (unfortunately, this did not survive refactoring so far)
+
+squisher23
+- add pushtan (typ = P_TAN_PUSH) as second factor

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+from comdirect_api.session import Session
+from creds import user, password, client_id, client_secret
+
 
 # During development, you can store your credentials in bin/creds.py.
 # Just put something like the following there:
@@ -7,16 +10,32 @@
 #     client_id = "User_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 #     client_secret = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 # Alternatively, just hard-code them here.
-from creds import user, password, client_id, client_secret
 
-from comdirect_api.session import Session
+# Define directory to store documents in (or leave emtpy)
+# Alternatively, you can use a script parameter
+PATH = "comdirect postbox"
+# PATH = sys.argv[1]
 
+# This downloads all documents (pagingcount defines the number of
+# documents per page
+pagingcount = 50
 
-# This downloads all documents (actually, only the first 1000)
 s = Session(user, password, client_id, client_secret)
-for d in s.documents_list():
-    filename = d.get_filename()
-    print(f"downloading {filename}...")
-    content = s.documents_download(d)
-    with open(filename, "wb") as f:
-        f.write(content)
+pagingfirst = 0
+hasmore = True
+
+while hasmore:
+    count = 0
+    for d in s.documents_list(paging_count=pagingcount, paging_first=pagingfirst):
+        count += 1
+        filename = d.get_filename()
+        print(f"downloading document {pagingfirst +count} {filename}...")
+        content = s.documents_download(d)
+        with open('{0}\\{1}'.format(PATH, filename), "wb") as f:
+            f.write(content)
+    hasmore = count == pagingcount
+    if hasmore:
+        print(f"fetching next page of documents {pagingfirst+pagingcount} to {pagingfirst+pagingcount*2}")
+        pagingfirst += pagingcount
+    else:
+        print(f"finished fetching {pagingfirst + count} documents ")
