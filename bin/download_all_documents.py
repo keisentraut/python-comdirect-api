@@ -18,7 +18,6 @@ if len(sys.argv) == 2:
     PATH = os.path.dirname(sys.argv[1])
 else:
     print(f"usage: {sys.argv[0]} PATH")
- 
 
 # This downloads all documents (pagingcount defines the number of
 # documents per page
