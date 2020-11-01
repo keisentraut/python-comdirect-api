@@ -27,11 +27,11 @@ AccountType = {
 
 # TODO: This list is incomplete.
 TransactionType = {
-    "ATM_WITHDRAWAL" : "ATM Withdrawal",
+    "ATM_WITHDRAWAL": "ATM Withdrawal",
     "DIRECT_DEBIT": "Direct Debit",
     "SECURITIES": "Securities",
     "TRANSFER": "Transfer",
-    "UNKNOWN": "Unknown", # this happens with unbooked transactions
+    "UNKNOWN": "Unknown",  # this happens with unbooked transactions
     "XX1": "Saving Plan",
     "XX2": "Investment Saving",
     "XX3": "Bank fees",
