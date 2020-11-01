@@ -3,7 +3,8 @@ import io
 
 
 def is_alphanum(c):
-    ALPHANUM = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,-äüöÄÜÖß")
+    ALPHANUM = set(
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,-äüöÄÜÖß")
     return c in ALPHANUM
 
 
