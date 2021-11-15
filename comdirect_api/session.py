@@ -253,10 +253,10 @@ class Session:
             f"https://api.comdirect.de/api/banking/v1/accounts/{accountid}/transactions?{parameters}")
         return [comdirect_api.types.AccountTransaction(i) for i in response.json()["values"]]
 
-
     # --------------------------- DEPOT ----------------------------------------
 
     # GET /brokerage/clients/clientId/v3/depots
+
     def account_get_depots(self, paging_first=0, paging_count=1000):
         response = self._get_authorized(
             f"https://api.comdirect.de/api/brokerage/clients/user/v3/depots"
@@ -267,7 +267,7 @@ class Session:
     def account_get_depot_positions(self, depotid):
         response = self._get_authorized(
             f"https://api.comdirect.de/api/brokerage/v3/depots/{depotid}/positions")
-        return types.DepotBalance(response.json()["aggregated"])    
+        return types.DepotBalance(response.json()["aggregated"])
 
     # ------------------------------ DOCUMENTS --------------------------------
     # GET /messages/clients/user/v2/documents

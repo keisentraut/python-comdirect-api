@@ -191,9 +191,9 @@ class DepotBalance():
 
     def __str__(self):
         return f'Depot ID: {self.depot.depotId}' \
-               f'\nDepot Holder: {self.depot.holderName}' \
-               f'\nPrevious Day Value: {self.prevDayValue}' \
-               f'\nCurrent Value: {self.currentValue}' \
+            f'\nDepot Holder: {self.depot.holderName}' \
+            f'\nPrevious Day Value: {self.prevDayValue}' \
+            f'\nCurrent Value: {self.currentValue}' \
 
 
 # --------------------------- DOCUMENT ----------------------------------------
