@@ -36,7 +36,7 @@ pip install dist/comdirect_api-0.1.tar.gz
 After installing it, you can run one of the scripts in the ```bin``` folder or write your own script.
 
 ```
-$ python bin/get_account_balances.py 
+$ python bin/get_account_balances_and_transactions.py 
 Please enter Photo-TAN: 123456
 Balance of Direct Access Savings-Plus Account (DE012345678901234567890): 0 EUR
 Recent transactions:
