@@ -31,6 +31,7 @@ TransactionType = {
     "DIRECT_DEBIT": "Direct Debit",
     "SECURITIES": "Securities",
     "TRANSFER": "Transfer",
+    "INTEREST_DIVIDENDS": "Interest Dividends",
     "UNKNOWN": "Unknown",  # this happens with unbooked transactions
     "XX1": "Saving Plan",
     "XX2": "Investment Saving",
@@ -161,6 +162,38 @@ class AccountTransaction():
 
     def __str__(self):
         return f"{self.bookingDate} {self.amount} {self.transactionType}"
+
+
+# --------------------------- DEPOT ----------------------------------------
+
+
+class Depot():
+    def __init__(self, json):
+        self.depotId = json["depotId"]
+        self.depotDisplayId = json["depotDisplayId"]
+        self.clientId = json["clientId"]
+        self.depotType = json["depotType"]
+        self.defaultSettlementAccountId = json["defaultSettlementAccountId"]
+        self.settlementAccountIds = json["settlementAccountIds"]
+        self.holderName = json["holderName"]
+
+    def __str__(self):
+        return str(self.depotId)
+
+
+class DepotBalance():
+    def __init__(self, json):
+        self.depot = Depot(json['depot'])
+        self.prevDayValue = json["prevDayValue"]['value']
+        self.currentValue = json["currentValue"]['value']
+        self.purchaseValue = json["purchaseValue"]['value']
+        self.profitSincePurchase = json["profitLossPurchaseAbs"]['value']
+
+    def __str__(self):
+        return f'Depot ID: {self.depot.depotId}' \
+            f'\nDepot Holder: {self.depot.holderName}' \
+            f'\nPrevious Day Value: {self.prevDayValue}' \
+            f'\nCurrent Value: {self.currentValue}' \
 
 
 # --------------------------- DOCUMENT ----------------------------------------
