@@ -30,14 +30,16 @@ setup(
     packages=["comdirect_api"],
     python_requires=">=3.6",
     install_requires=[
-        "base64",
+# TODO: I am not sure if those packages are installed by default or not.
+# For now, I just uncommented them, too lazy for a proper test...
+#        "base64",
         "datetime",
-        "decimal",
-        "io",
-        "json",
+#        "decimal",
+#        "io",
+#        "json",
         "pillow",
         "requests",
-        "time",
+#        "time",
         "uuid",
     ],
     project_urls={
