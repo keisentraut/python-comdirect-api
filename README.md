@@ -25,7 +25,7 @@ Most likely, I won't implement those soon, this has two reasons:
 
 # How to use this
 
-This Python module is currently not yet on PyPi.
+This Python module is currently not yet on PyPi (and given the stalled development, probably never will be).
 So in order to build it, you need to clone this repository and then package it yourself:
 
 ```
