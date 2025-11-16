@@ -32,6 +32,7 @@ TransactionType = {
     "SECURITIES": "Securities",
     "TRANSFER": "Transfer",
     "INTEREST_DIVIDENDS": "Interest Dividends",
+    "BANK_FEES": "Bank fees",
     "UNKNOWN": "Unknown",  # this happens with unbooked transactions
     "XX1": "Saving Plan",
     "XX2": "Investment Saving",
@@ -157,6 +158,9 @@ class AccountTransaction():
         # The problem is that comdirect didn't document the keys.
         # Please report, if you learn what keys there are!
         print(self.transactionType)
+        # Tolerate unknown transaction types by mapping them to "Unknown"
+        if self.transactionType not in TransactionType:
+            TransactionType[self.transactionType] = "Unknown"
         assert(self.transactionType in TransactionType)
         self.valutaDate = json["valutaDate"]  # can be an invalid date!
 
@@ -169,13 +173,14 @@ class AccountTransaction():
 
 class Depot():
     def __init__(self, json):
-        self.depotId = json["depotId"]
-        self.depotDisplayId = json["depotDisplayId"]
-        self.clientId = json["clientId"]
-        self.depotType = json["depotType"]
-        self.defaultSettlementAccountId = json["defaultSettlementAccountId"]
-        self.settlementAccountIds = json["settlementAccountIds"]
-        self.holderName = json["holderName"]
+        # Some fields may be absent depending on API version
+        self.depotId = json.get("depotId")
+        self.depotDisplayId = json.get("depotDisplayId")
+        self.clientId = json.get("clientId")
+        self.depotType = json.get("depotType")
+        self.defaultSettlementAccountId = json.get("defaultSettlementAccountId")
+        self.settlementAccountIds = json.get("settlementAccountIds")
+        self.holderName = json.get("holderName")
 
     def __str__(self):
         return str(self.depotId)
@@ -183,18 +188,49 @@ class Depot():
 
 class DepotBalance():
     def __init__(self, json):
-        self.depot = Depot(json['depot'])
-        self.prevDayValue = json["prevDayValue"]['value']
-        self.currentValue = json["currentValue"]['value']
-        self.purchaseValue = json["purchaseValue"]['value']
-        self.profitSincePurchase = json["profitLossPurchaseAbs"]['value']
+        self.depot = Depot(json.get('depot', {}))
+        self.prevDayValue = json.get("prevDayValue", {}).get("value")
+        self.currentValue = json.get("currentValue", {}).get("value")
+        self.purchaseValue = json.get("purchaseValue", {}).get("value")
+        self.profitSincePurchase = json.get("profitLossPurchaseAbs", {}).get("value")
+        
+        self.profitLossPurchaseRel = json.get("profitLossPurchaseRel")
+        self.profitLossPrevDayRel = json.get("profitLossPrevDayRel")
+       
+    def __str__(self):
+        return (
+            f'Depot ID: {self.depot.depotId}'
+            f'\nDepot Holder: {self.depot.holderName}'
+            f'\nPrevious Day Value: {self.prevDayValue}'
+            f'\nCurrent Value: {self.currentValue}'
+            f'\nPurchase Value: {self.purchaseValue}'
+            f'\nProfit Since Purchase: {self.profitSincePurchase}'
+            f'\nTotal Performance: {self.profitLossPurchaseRel}'
+            f'\n1-Day Performance: {self.profitLossPrevDayRel}'
+        )
+
+class DepotPosition():
+    def __init__(self, json):
+        self.wkn = json.get("wkn")
+        self.qty = json.get("quantity", {}).get("value", 0)
+        self.purchaseValue = json.get("purchaseValue", {}).get("value", 0)
+        self.currentValue = json.get("currentValue", {}).get("value", 0)
+        self.profitLossPurchaseAbs = json.get("profitLossPurchaseAbs", {}).get("value")
+        self.profitLossPurchaseRel = json.get("profitLossPurchaseRel", 0)
+        self.profitLossPrevDayAbs = json.get("profitLossPrevDayAbs", {}).get("value")
+        self.profitLossPrevDayRel = json.get("profitLossPrevDayRel", 0)
 
     def __str__(self):
-        return f'Depot ID: {self.depot.depotId}' \
-            f'\nDepot Holder: {self.depot.holderName}' \
-            f'\nPrevious Day Value: {self.prevDayValue}' \
-            f'\nCurrent Value: {self.currentValue}' \
-
+        return (
+            f'WKN: {self.wkn}'
+            f'\nQuantity: {self.qty}'
+            f'\nPurchase Value: {self.purchaseValue}'
+            f'\nCurrent Value: {self.currentValue}'
+            f'\nProfit/Loss (Absolute): {self.profitLossPurchaseAbs}'
+            f'\nProfit/Loss (Relative): {self.profitLossPurchaseRel}'
+            f'\n1-Day Profit/Loss (Absolute): {self.profitLossPrevDayAbs}'
+            f'\n1-Day Profit/Loss (Relative): {self.profitLossPrevDayRel}'
+        )
 
 # --------------------------- DOCUMENT ----------------------------------------
 
